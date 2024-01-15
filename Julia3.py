@@ -17,8 +17,8 @@ MAXITER :int  = 500
 # Complex vector length treshold to consider iteration as divergent
 MaxVect :float = 3.0
 # Initial Real and Imag value of the complex C parameter
-InitRe  :float = 0.11
-InitIm  :float = 0.62
+InitRe  :float = -0.41
+InitIm  :float = -0.006
 # Whether display should be color or mono.
 CLR     :str  = "CLR"
 # Image palette pre-calculated list for screen shots.
@@ -100,13 +100,13 @@ def exportImage(IWid :int, IHei :int) -> None :
             Im = (Scr_Y_B - Scr_Y_T) * j / (IHei-1) + Scr_Y_T
             Iter = 0
             while Re*Re + Im*Im <= MaxVect*MaxVect and Iter < MAXITER :
-                Re_tmp = Re*Re - Im*Im + InitRe
-                Im = 2*Re*Im + InitIm
+                Re_tmp = Re*Re*Re - 3*Im*Im*Re + InitRe
+                Im = 3*Im*Re*Re - Im*Im*Im + InitIm
                 Re = Re_tmp
                 Iter += 1
             IL.append( tuple((IPALR[Iter],IPALG[Iter],IPALB[Iter])) )
     Img.putdata(IL)
-    Img.save("Screenshots/Julia-"+str(time.time_ns())+".png")
+    Img.save("Screenshots/Julia3-"+str(time.time_ns())+".png")
 
 ###
 
@@ -160,8 +160,8 @@ while True :
             Im = (Scr_Y_B - Scr_Y_T) * SY / (YSIZE-1) + Scr_Y_T
             Iter = 1   # To avoid log(0), and the actual value doesn't really matter
             while Re*Re + Im*Im <= MaxVect*MaxVect and Iter < MAXITER :
-                Re_tmp = Re*Re - Im*Im + InitRe
-                Im = 2*Re*Im + InitIm
+                Re_tmp = Re*Re*Re - 3*Im*Im*Re + InitRe
+                Im = 3*Im*Re*Re - Im*Im*Im + InitIm
                 Re = Re_tmp
                 Iter += 1
             print(PALETTE[CLR][int(log(Iter)*PalRate)],end="")

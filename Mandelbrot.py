@@ -5,22 +5,31 @@
 #
 import os,sys,re
 from math import log
+from _palette import PALETTE
+from PIL import Image
+import time
 
-#PALETTE :list = [15, 231, 225, 219, 213, 207, 201, 200, 199, 198, 197, 196, 202, 208, 214, 220, 226, 190, 184, 148, 142, 106, 70, 64, 28, 34, 40, 46, 47, 48, 49, 50, 51, 45, 39, 33, 27, 21, 20, 19, 18, 17, 236]
-
-PALETTE :list = [17, 18, 19, 20, 21, 27, 33, 39, 45, 51, 50, 49, 48, 47, 46, 40, 34, 28, 64, 70, 106, 142, 148, 184, 190, 226, 220, 214, 208, 202, 196, 197, 198, 199, 200, 201, 207, 213, 219, 225, 231, 15, 236]
-
-
+# Screen max sizes
 XSIZE   :int  = int(os.environ["COLUMNS"])
 YSIZE   :int  = int(os.environ["LINES"])-1
+# Max number of iterations before stop and evaluate if divergent or not
 MAXITER :int  = 500
+# Complex vector length treshold to consider iteration as divergent
 MaxVect :float = 3.0
+# Whether display should be color or mono.
+CLR     :str  = "CLR"
+# Image palette pre-calculated list for screen shots.
+IPALR   :list = [255]
+IPALG   :list = [255]
+IPALB   :list = [255]
+
 
 # Command line arguments :
 # Mxxx  = Max Iterations (xxx is integer)
 # Vx.yy = Max Vector Length to state it is divergent (x.yy is float)
+# B     = Switch to B&W Palette
 for parm in sys.argv[1:] :
-    m = re.match("([MV])([0-9\.\-\+e]+)",parm,re.I)
+    m = re.match("([BMV])([0-9\.\-\+e]*)",parm,re.I)
     if m :
         if m[1].upper() == "M" :
             try :
@@ -36,12 +45,97 @@ for parm in sys.argv[1:] :
                 pass
             else :
                 if reqRad > 0.0 : MaxVect = reqRad
+        elif m[1].upper() == "B" :
+            CLR = "B_W"
 
+# Initial value ranges to display (position and zoom)
 Scr_X_L :float = -2.50
 Scr_X_R :float = +1.00
 Scr_Y_T :float = +1.12
 Scr_Y_B :float = -1.12
-PalRate :float = 42.0 / log(MAXITER)
+# Rate between iteration numbers and palette index to display
+PalRate :float = 1.0 * (len(PALETTE[CLR])-1) / log(MAXITER)
+
+
+###
+
+def clamp(_val :float, _max :float, _min :float) -> float :
+    if _val > _max : _val = _max
+    if _val < _min : _val = _min
+    return _val
+
+
+def exportImage(IWid :int, IHei :int) -> None :
+    """Export a detailed image file from the current view.
+    Parameters:
+    :param IWid : Image Width in Pixels. (ex: 1920)
+    :param IHei : Image Height in Pixels. (ex: 1080)
+    :returns : None"""
+    global Scr_X_R, Scr_X_L, Scr_Y_T, Scr_Y_B, MaxVect, MAXITER
+    global IPALR, IPALG, IPALB
+
+    Img = Image.new("RGB",(IWid,IHei))
+    IL = list(())
+    for j in range(IHei) :
+        print(str(j))
+        for i in range(IWid) :
+            Re0 = (Scr_X_R - Scr_X_L) * i / (IWid-1) + Scr_X_L
+            Im0 = (Scr_Y_B - Scr_Y_T) * j / (IHei-1) + Scr_Y_T
+            Re = 0.0
+            Im = 0.0
+            Iter = 0
+            while Re*Re + Im*Im <= MaxVect*MaxVect and Iter < MAXITER :
+                Re_tmp = Re*Re - Im*Im + Re0
+                Im = 2*Re*Im + Im0
+                Re = Re_tmp
+                Iter += 1
+            IL.append( tuple((IPALR[Iter],IPALG[Iter],IPALB[Iter])) )
+    Img.putdata(IL)
+    Img.save("Screenshots/Mand-"+str(time.time_ns())+".png")
+
+###
+
+# Generate the large pallet for the image exporting so that we don't have to regenerate each time
+for i in range(1,MAXITER+1) :
+    rt = log(1000*i/MAXITER)
+
+    if rt < 3 :
+        IPALR.append(0)
+    elif rt > 4 :
+        IPALR.append(255)
+    else :
+        IPALR.append(clamp(int(255*(rt-3)),255,0))
+
+    if rt < 1 :
+        IPALG.append(0)
+    elif rt < 2 :
+        IPALG.append(clamp(int(255*(rt-1)),255,0))
+    elif rt < 4 :
+        IPALG.append(255)
+    elif rt < 5 :
+        IPALG.append(clamp(int(255*(5-rt)),255,0))
+    elif rt < 6 :
+        IPALG.append(0)
+    else :
+        IPALG.append(clamp(int(255*(rt-6)),255,0))
+
+    if rt < 1 :
+        IPALB.append(clamp(int(255*rt),255,0))
+    elif rt < 2 :
+        IPALB.append(255)
+    elif rt < 3 :
+        IPALB.append(clamp(int(255*(3-rt)),255,0))
+    elif rt < 5 :
+        IPALB.append(0)
+    elif rt < 6 :
+        IPALB.append(clamp(int(255*(rt-5)),255,0))
+    else :
+        IPALB.append(255)
+
+IPALR[-1] = 0
+IPALG[-1] = 0
+IPALB[-1] = 0
+
 
 while True :
     print("\x1b[0m\x1b[2J\x1b[H",end="")
@@ -51,13 +145,13 @@ while True :
             Im0 = (Scr_Y_B - Scr_Y_T) * SY / (YSIZE-1) + Scr_Y_T
             Re = 0.0
             Im = 0.0
-            Iter = 0
+            Iter = 1   # To avoid log(0), and the actual value doesn't really matter
             while Re*Re + Im*Im <= MaxVect*MaxVect and Iter < MAXITER :
                 Re_tmp = Re*Re - Im*Im + Re0
                 Im = 2*Re*Im + Im0
                 Re = Re_tmp
                 Iter += 1
-            print("\x1b[38;5;"+str(PALETTE[int(log(Iter)*PalRate)])+"m▓",end="")
+            print(PALETTE[CLR][int(log(Iter)*PalRate)],end="")
     print(f"\x1b[1;36;44m Rmax = {MaxVect} \x1b[0m   \x1b[1;35;45m ITmax = {MAXITER} \x1b[0m   \x1b[1;33;42m Re: {Scr_X_L} .. {Scr_X_R} \x1b[0m   \x1b[1;31;43m Im: {Scr_Y_B} .. {Scr_Y_T} ",end="\x1b[0m")
     Ans = input(" >>> ")
     Wid = Scr_X_R-Scr_X_L
@@ -84,5 +178,7 @@ while True :
         Scr_X_R = Scr_X_R + Wid/2.0
         Scr_Y_T = Scr_Y_T + Hei/2.0
         Scr_Y_B = Scr_Y_B - Hei/2.0
+    elif Ans.upper() == "I" :
+        exportImage(3840,2160)
     elif Ans.upper() == "Q" :
         break
