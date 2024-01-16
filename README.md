@@ -1,21 +1,22 @@
-###GENERATE FRACTAL IMAGES
+#GENERATE FRACTAL IMAGES
 
 > Generate colorful Fractal images of the **Mandelbrot** set and the **Julia** set.
 > More info abouth the mathematical aspects is available on Wikipedia: [Mandelbrot Set](https://en.wikipedia.org/wiki/Mandelbrot_set) and [Julia Set](https://en.wikipedia.org/wiki/Julia_set)
 
 
-####General preconditions
+##General preconditions
 
 These softwares are written in **`Python`** programming language, but they also require the **`PIL`** Image Library, as well as they recommend to be run on a **256 color** capable **`ANSI`** terminal. (They were coded under linux.)
 
 
-####Operation
+##Operation
 
 Initially all 3 programs start up with a default colorful palette and such mathematical input conditions that produce a spectacular view of the desired Fractal types. _(Remember: the Julia set is a **chaotic system** that means the smallest alteration in the input parameters results in a completely different fractal)_.
+
 The initial default view is calibrated so that the main body of the desired Fractal is completely shown on the available screen.
 
 
-####Handling, User Interface
+##Handling, User Interface
 
 The programs produce and output a fractal image on the text screen (terminal screen) using 256 color ANSI escape sequences and checquered pattern special Unicode characters to fade ANSI Foreground and ANSI Background colors into each other to produce a smoothly fading color image even on the text screen.
 
@@ -41,12 +42,13 @@ After these values there is a **`>>>`** propmt displayed waiting for Your comman
 * **`Q`** : Quit the program
 
 > **\*note1)** : Currently there is only 1 way to influence the size of the exported pictures : Go to the Python codes of the respective programs, and within the last 3 program rows You will see a function invoked:  `exportImage(3840,2160)` -- edit this to have different image size.
-> Although:  Having a smaller size like 1920x1080 will result an image with lower resolution that will still look OK on a FullHD screen, although not zoomable at all as it will immediately show pixel grains.
-> And having a larger size image will result a very slow picture generation.
+>
+> Although:  Having a smaller size like 1920x1080 will result an image with lower resolution that will still look OK on a FullHD screen, although not zoomable at all as it will immediately show pixel grains. While having a larger size image will result a very slow picture generation.
+>
 > You can follow up the status of the picture generation as the current picture row number will be shown on the standard output.
 
 
-####Command line arguments interpreted by the programs
+##Command line arguments interpreted by the programs
 
 You can influence the initial parameters of the Fractals by specifying command line arguments.
 
@@ -57,61 +59,50 @@ You can influence the initial parameters of the Fractals by specifying command l
 * **`B`** : Switch to Black&White palette (on the ANSI screen only)
 
 
-####Mathematical background
+##Mathematical background
 
 **Mandelbrot**
 
 > The iterated formula is: `Zn+1 = Zn ^ 2 + C` , where C is the parameter taken from the X-Y location on the screen.
-> Z0 = 0
-> Z1 = 0 ^ 2 +C = C
-> Z2 = C ^ 2 +C
-> So the iteration always starts from {0,0} and the generated picture shows how convergent/divergent is the iteration series if we add the complex value under the respective pixel to the series. So the screen shows the complex plane of C.
-> Simply put : "For each pixel of the screen: If we start our iteration from zero and add **this** value where we stand on the screen to each iteration step then how fast our iteration value would fly away to infinite or whether it will remain in the proximity of zero"
 
+* Z0 = 0
+* Z1 = 0 ^ 2 +C = C
+* Z2 = C ^ 2 +C
+
+So the iteration always starts from {0,0} and the generated picture shows how convergent/divergent is the iteration series if we add the complex value under the respective pixel to the series. So the screen shows the complex plane of C.
+
+Simply put : "For each pixel of the screen: If we start our iteration from zero and add **this** value where we stand on the screen to each iteration step then how fast our iteration value would fly away to infinite or whether it will remain in the proximity of zero"
+
+---
 
 **Julia**
 
 > The iterated formula is: `Zn+1 = Zn ^ 2 + C` , where C is a predefined constant complex number given at the start of the program, and the initial value of Z0 is taken from the X-Y position on the screen.
-> Z0 = (defined by the position on the screen)
-> Z1 = Z0 ^ 2 +C , where C is constant throughout the whole operation of the program
-> ...
-> Simply put : "For each pixel of the screen: If we start our iteration from the value where we stand on the complex plane on the screen, and at each iteration adding a predefined C value, how fast our iteration value would fly away to infinite or whether it will remain in the proximity of zero"
-> Easy to see that Mandelbrot and Julia sets somehow "complement" each other: Keeping either one of Z or C constant while varying the other one by the position on the screen.
-> **Note** : The initial value of C has a great impact on the look and style of the Julia set varying from an amorph "blob", through spectacular dragon-shaped pictures, to distant groups of single dots.
-> It is called a "chaotic system", meaning that a minor change on the input value C will greatly influence the output. Therefore when specifying the initial C value try to make minimal changes to be able to follow-up the changes of the output.
 
+* Z0 = (defined by the position on the screen)
+* Z1 = Z0 ^ 2 +C , where C is constant throughout the whole operation of the program
+* ...
+
+Simply put : "For each pixel of the screen: If we start our iteration from the value where we stand on the complex plane on the screen, and at each iteration adding a predefined C value, how fast our iteration value would fly away to infinite or whether it will remain in the proximity of zero"
+
+Easy to see that Mandelbrot and Julia sets somehow "complement" each other: Keeping either one of Z or C constant while varying the other one by the position on the screen.
+
+**Note** : The initial value of C has a great impact on the look and style of the Julia set varying from an amorph "blob", through spectacular dragon-shaped pictures, to distant groups of single dots.
+
+It is called a "chaotic system", meaning that a minor change on the input value C will greatly influence the output. Therefore when specifying the initial C value try to make minimal changes to be able to follow-up the changes of the output.
+
+---
 
 **Julia3**
 
-> Sames as **Julia** but the formula is "cubic" instead of "square".
+Sames as **Julia** but the formula is "cubic" instead of "square".
 
+> Iterated formula is : `Zn+1 = Zn ^ 3 +C`
 
-```python
-# for each pixel (Px, Py) on the screen do
-    x0 = "scaled x coordinate of pixel (scaled to lie in the Mandelbrot X scale (-2.00, 0.47))"
-    y0 = "scaled y coordinate of pixel (scaled to lie in the Mandelbrot Y scale (-1.12, 1.12))"
-    x = 0.0
-    y = 0.0
-    iteration = 0
-    max_iteration = 1000
-    while x*x + y*y <= 2*2 and iteration < max_iteration :
-        xtemp = x*x - y*y + x0
-        y = 2*x*y + y0
-        x = xtemp
-        iteration += 1
-    color = palette[iteration]
-    plot(Px, Py, color)
-```
+Try to have the Re and Im part of C as a relatively small negative number. The default C is {-0.41 , -0.006}
 
-Here, relating the pseudocode to **c**, **z** and **f~c~** :
+---
 
-* **z** = **x** + **i** \* **y**
-* **z^2^** = **x^2^** + **i** \* 2 \* **xy** − **y^2^**
-* **c** = **x~0~** + **i** \* **y~0~**
+Have fun playing around with them, generating nice pictures.
 
-and so, as can be seen in the pseudocode in the computation of x and y:
-
-* **x** = _Re_(**z^2^** + **c**) = **x^2^** − **y^2^** + **x~0~**
-* **y** = _Im_(**z^2^** + **c**) = 2 \* **xy** + **y~0~**
-
-To get colorful images of the set, the assignment of a color to each value of the number of executed iterations can be made using one of a variety of functions (linear, exponential, etc.).
+Check out some [Screen Shots](https://github.com/oliverbacsi/Fractals/blob/master/Screenshots/)
