@@ -1,22 +1,22 @@
-#GENERATE FRACTAL IMAGES
+# GENERATE FRACTAL IMAGES
 
 > Generate colorful Fractal images of the **Mandelbrot** set and the **Julia** set.
 > More info abouth the mathematical aspects is available on Wikipedia: [Mandelbrot Set](https://en.wikipedia.org/wiki/Mandelbrot_set) and [Julia Set](https://en.wikipedia.org/wiki/Julia_set)
 
 
-##General preconditions
+## General preconditions
 
 These softwares are written in **`Python`** programming language, but they also require the **`PIL`** Image Library, as well as they recommend to be run on a **256 color** capable **`ANSI`** terminal. (They were coded under linux.)
 
 
-##Operation
+## Operation
 
 Initially all 3 programs start up with a default colorful palette and such mathematical input conditions that produce a spectacular view of the desired Fractal types. _(Remember: the Julia set is a **chaotic system** that means the smallest alteration in the input parameters results in a completely different fractal)_.
 
 The initial default view is calibrated so that the main body of the desired Fractal is completely shown on the available screen.
 
 
-##Handling, User Interface
+## Handling, User Interface
 
 The programs produce and output a fractal image on the text screen (terminal screen) using 256 color ANSI escape sequences and checquered pattern special Unicode characters to fade ANSI Foreground and ANSI Background colors into each other to produce a smoothly fading color image even on the text screen.
 
@@ -48,7 +48,7 @@ After these values there is a **`>>>`** propmt displayed waiting for Your comman
 > You can follow up the status of the picture generation as the current picture row number will be shown on the standard output.
 
 
-##Command line arguments interpreted by the programs
+## Command line arguments interpreted by the programs
 
 You can influence the initial parameters of the Fractals by specifying command line arguments.
 
@@ -59,7 +59,7 @@ You can influence the initial parameters of the Fractals by specifying command l
 * **`B`** : Switch to Black&White palette (on the ANSI screen only)
 
 
-##Mathematical background
+## Mathematical background
 
 **Mandelbrot**
 
